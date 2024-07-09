@@ -1,0 +1,19 @@
+functions must be create in controllers folder:
+
+Functions for user administration:
+
++AddUser
++ DeleteUser
+
+
+Other functions :
+
++LoginPage
++ProfilePage
++AjouterInventaire
++SupprimerInventaire
++ModifierInventaire
++SearchPage
++AjouterUtilisateur
++SupprimerUtilisateur
++HomePage
