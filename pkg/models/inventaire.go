@@ -2,6 +2,7 @@ package models
 
 import (
 	"MohamedStaili/GO_Project_inventaire/pkg/config"
+	"fmt"
 
 	"github.com/jinzhu/gorm"
 )
@@ -51,4 +52,37 @@ func init() {
 	db = config.GetDb()
 	db.AutoMigrate(&Inventaire{}, &Employe{}, &Materiel{}, &Achat{})
 
+}
+func (b *Inventaire) AjouterInventaire() *Inventaire { //Creer un nouveau inventaire
+	db.NewRecord(&b)
+	db.Create(&b)
+	return b
+}
+func GetALLInventaire() []Inventaire { //pour recuperer toute les inventaires de la base de donnee
+	var inv []Inventaire
+	db.Find(&inv)
+	return inv
+}
+func SearchPage(Id int64) (Inventaire, *gorm.DB) { //cette,fct est a developpe,incha'allah
+	var getInv Inventaire
+	db.Where("id=?", Id).Find(&getInv)
+	return getInv, db
+}
+func SupprimerInventaire(Id int64) Inventaire {
+	var delInv Inventaire
+	db.Where("id=?", Id).Delete(delInv)
+	return delInv
+}
+func (b *Inventaire) ModifierInventaire() *Inventaire {
+	// Vérifie si b est un nouvel enregistrement
+	if db.NewRecord(&b) {
+		// Gère le cas où b est un nouvel enregistrement
+		fmt.Println("Erreur: Impossible de mettre à jour, l'inventaire n'existe pas encore.")
+		return b
+	}
+
+	// Met à jour l'inventaire dans la base de données
+	db.Save(&b)
+
+	return b
 }

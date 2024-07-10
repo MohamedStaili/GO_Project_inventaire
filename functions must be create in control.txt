@@ -10,7 +10,7 @@ Other functions :
 
 +LoginPage
 +ProfilePage
-+AjouterInventaire
++AjouterInventaire:fait
 +SupprimerInventaire
 +ModifierInventaire
 +SearchPage
