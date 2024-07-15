@@ -203,7 +203,7 @@ func (U *User) BeforeCreate(scope *gorm.Scope) (err error) {
 	}
 
 	// Ensure the role is not "admin"
-	if existingUser.UUID.Role == "admin" {
+	if existingUser.Role == "admin" {
 		return errors.New("invalid role")
 	}
 	return nil
@@ -220,11 +220,8 @@ func (U *User) AfterCreate(scope *gorm.Scope) error {
 	return nil
 }
 
-// Fonction pour envoyer un email de bienvenue (exemple simplifié)
 func sendWelcomeEmail(email string) error {
-	// Ici, vous pouvez implémenter la logique d'envoi d'email
-	// Utilisation de bibliothèques comme gomail.v2
-	// Exemple simplifié :
+
 	m := gomail.NewMessage()
 	m.SetHeader("From", "inventaire_contact@devoteam.ac.ma")
 	m.SetHeader("To", email)
@@ -242,21 +239,21 @@ func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
 func LoginPage(email, password string) error {
 	var user User
-	if err := db.Where("email=?", email).First(&user).Error; err != nil {
-
-		errors.New("email not exist")
-		return err
-	} else {
-		if err := db.Where("password=?", password).First(&user).Error; err != nil {
-			errors.New("incorrect password")
-		} else {
-			fmt.Println("Login Succeful")
-			return nil
-		}
-
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		return errors.New("email does not exist")
 	}
-	return nil
 
+	if !checkPasswordHash(password, user.Password) {
+		return errors.New("incorrect password")
+	}
+
+	fmt.Println("Login Successful")
+	return nil
 }

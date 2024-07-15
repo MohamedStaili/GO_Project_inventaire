@@ -143,3 +143,23 @@ func SupprimerUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Record deleted successfully"}`))
 }
+func LoginPage(w http.ResponseWriter, r *http.Request) {
+	var LogInfo map[string]string
+	err := utils.ParseBody(r, &LogInfo)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	email := LogInfo["email"]
+	password := LogInfo["password"]
+
+	err = models.LoginPage(email, password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Login Successful"}`))
+}
