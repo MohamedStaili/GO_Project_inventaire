@@ -48,8 +48,8 @@ func AjouterInventaire(w http.ResponseWriter, r *http.Request) {
 
 func SupprimerInventaire(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	bookId := vars["id"]
-	Id, err := strconv.ParseInt(bookId, 0, 0)
+	invId := vars["id"]
+	Id, err := strconv.ParseInt(invId, 0, 0)
 	if err != nil {
 		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
@@ -102,4 +102,44 @@ func ModifierInventaire(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(res)
+}
+
+// Create a User
+func AjouterUser(w http.ResponseWriter, r *http.Request) {
+	var NewUser models.User
+	utils.ParseBody(r, &NewUser)
+	//verifier l'existence de{username,password,email}
+	if NewUser.Username == "" || NewUser.Email == "" || NewUser.Password == "" {
+		http.Error(w, "plaise provide all fields", http.StatusBadRequest)
+		return
+	}
+	user, err := NewUser.AjouterUser()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res, _ := json.Marshal(user)
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+func SupprimerUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ID := vars["id"]
+	UserId, err := strconv.ParseInt(ID, 0, 0)
+	if err != nil {
+		fmt.Printf("Error Format:%v", err)
+		return
+	}
+	err = models.SupprimerUser(UserId)
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			http.Error(w, "Record not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Failed to delete record", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Record deleted successfully"}`))
 }
