@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
@@ -64,6 +65,13 @@ type User struct {
 	Password string `json:"password" validate:"required,min=6"`
 	Role     string `json:"role" gorm:"default:user"`
 }
+type Session struct {
+	ID        uint      `gorm:"primary_key"`
+	UUID      string    `gorm:"type:varchar(255);unique_index"`
+	UserID    uint      `gorm:"not null"`
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+	ExpiresAt time.Time `gorm:"not null"`
+}
 
 // Nommer explicitement la table
 func (Inventaire) TableName() string {
@@ -84,13 +92,16 @@ func (Materiel) TableName() string {
 func (User) TableName() string {
 	return "user"
 }
+func (Session) TableName() string {
+	return "sessions"
+}
 
 // Inside your init() function or database initialization code
 func init() {
 	config.Connect()
 	db = config.GetDb()
 	db.LogMode(true)
-	db.AutoMigrate(&Materiel{}, &Achat{}, &Employe{}, &Inventaire{}, &User{})
+	db.AutoMigrate(&Materiel{}, &Achat{}, &Employe{}, &Inventaire{}, &User{}, &Session{})
 
 	// Auto-migration avec les relations et les clés étrangères
 	db.Table("inventaires").AutoMigrate(&Inventaire{}).
@@ -256,4 +267,28 @@ func LoginPage(email, password string) error {
 
 	fmt.Println("Login Successful")
 	return nil
+}
+func (u *User) CreateSession() (Session, error) {
+	// Durée de validité de la session
+	expirationTime := time.Now().Add(48 * time.Hour * 30)
+
+	session := Session{
+		UUID:      uuid.New().String(),
+		UserID:    u.ID,
+		CreatedAt: time.Now(),
+		ExpiresAt: expirationTime,
+	}
+
+	if err := db.Create(&session).Error; err != nil {
+		return Session{}, err
+	}
+
+	return session, nil
+}
+func UserByEmail(email string) (User, error) {
+	var user User
+	if err := db.Where("eamil=?", email).First(&user).Error; err != nil {
+		return User{}, errors.New("user not found")
+	}
+	return user, nil
 }

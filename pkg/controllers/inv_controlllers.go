@@ -160,6 +160,33 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, _ := models.UserByEmail(email)
+	session, err := user.CreateSession()
+	if err != nil {
+		http.Error(w, "Could not create session", http.StatusInternalServerError)
+		return
+	}
+
+	err = utils.SetSession(w, r, user)
+	if err != nil {
+		http.Error(w, "Could not set session", http.StatusInternalServerError)
+		return
+	}
+	// Définition du cookie HTTP avec le UUID de la session
+	cookie := http.Cookie{
+		Name:     "_cookie",
+		Value:    session.UUID,
+		HttpOnly: true,
+		Expires:  session.ExpiresAt,
+	}
+	http.SetCookie(w, &cookie)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Login Successful"}`))
+}
+func LogOut(w http.ResponseWriter, r *http.Request) {
+	if err := utils.ClearSession(w, r); err != nil {
+		fmt.Printf("error:%v", err)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Logout Successful"}`))
 }
