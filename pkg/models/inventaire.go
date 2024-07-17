@@ -132,10 +132,13 @@ func (b *Inventaire) AjouterInventaire() (*Inventaire, error) {
 	return b, nil
 }
 
-func GetALLInventaire() []Inventaire {
-	var inv []Inventaire
-	db.Preload("Achat").Preload("Employe").Preload("Materiel").Find(&inv)
-	return inv
+func GetAllInventaire() ([]Inventaire, error) {
+	var inventaires []Inventaire
+	err := db.Preload("Achat").Preload("Employe").Preload("Materiel").Find(&inventaires).Error
+	if err != nil {
+		return nil, err
+	}
+	return inventaires, nil
 }
 
 func SearchPage(Id int64) (Inventaire, *gorm.DB) {

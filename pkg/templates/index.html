@@ -1,0 +1,38 @@
+{{define "content"}}
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Numero Inventaire</th>
+        <th>Type Materiel</th>
+        <th>Marque Modele</th>
+        <th>Numero Serie</th>
+        <th>Reference Achat</th>
+        <th>N Facture</th>
+        <th>Prix Achat Ht</th>
+        <th>Fournisseur</th>
+        <th>Date Entree</th>
+        <th>Affectation</th>
+        <th>Date Affectation</th>
+        <th>Etat</th>
+        <th>Observations</th>
+    </tr>
+    {{range .}}
+    <tr>
+        <td>{{.ID}}</td>
+        <td>{{.NumeroInventaire}}</td>
+        <td>{{.TypeMateriel}}</td>
+        <td>{{.MarqueModele}}</td>
+        <td>{{.NumeroSerie}}</td>
+        <td>{{.ReferenceAchat}}</td>
+        <td>{{.NFacture}}</td>
+        <td>{{.PrixAchatHt}}</td>
+        <td>{{.Fournisseur}}</td>
+        <td>{{.DateEntree}}</td>
+        <td>{{.Affectation}}</td>
+        <td>{{.DateAffectation}}</td>
+        <td>{{.Etat}}</td>
+        <td>{{.Observations}}</td>
+    </tr>
+    {{end}}
+</table>
+{{end}}

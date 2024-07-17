@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"text/template"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -143,6 +145,21 @@ func SupprimerUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Record deleted successfully"}`))
 }
+func ShowLoginForm(w http.ResponseWriter, r *http.Request) {
+	tmplFiles := []string{
+		filepath.Join("templates", "layout.html"),
+		filepath.Join("templates", "navbar.html"),
+		filepath.Join("templates", "login.html"),
+	}
+
+	tmpl, err := template.ParseFiles(tmplFiles...)
+	if err != nil {
+		http.Error(w, "Erreur lors du chargement des templates", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "layout", nil)
+}
 func LoginPage(w http.ResponseWriter, r *http.Request) {
 	var LogInfo map[string]string
 	err := utils.ParseBody(r, &LogInfo)
@@ -189,4 +206,38 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Logout Successful"}`))
+}
+
+func HomePage(w http.ResponseWriter, r *http.Request) {
+	inventaires, err := models.GetAllInventaire()
+	if err != nil {
+		http.Error(w, "Erreur lors de la récupération des inventaires", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = utils.GetSession(r) // Vérifiez si une session est active
+	var tmplFiles []string
+
+	if err != nil {
+		// Templates pour utilisateurs non authentifiés
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+	} else {
+		// Templates pour utilisateurs authentifiés
+		tmplFiles = []string{
+			filepath.Join("templates", "layout.html"),
+			filepath.Join("templates", "navbar.html"),
+			filepath.Join("templates", "index.html"),
+		}
+	}
+
+	tmpl, err := template.ParseFiles(tmplFiles...)
+	if err != nil {
+		http.Error(w, "Erreur lors du chargement des templates", http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "layout", inventaires)
+	if err != nil {
+		http.Error(w, "Erreur lors de l'exécution du template", http.StatusInternalServerError)
+	}
 }
