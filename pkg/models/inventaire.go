@@ -110,6 +110,7 @@ func init() {
 		AddForeignKey("id_employe", "employes(id)", "CASCADE", "CASCADE")
 	db.Table("achats").AutoMigrate(&Achat{}).AddForeignKey("id_mat", "materiels(id)", "CASCADE", "CASCADE")
 	validate = validator.New()
+
 }
 func (u *User) Validate() error {
 	return validate.Struct(u)
@@ -295,3 +296,25 @@ func UserByEmail(email string) (User, error) {
 	}
 	return user, nil
 }
+
+/*func CreateTemplateCache() (map[string]*template.Template, error) {
+	cache := map[string]*template.Template{}
+	pages, err := filepath.Glob("./templates/*.page.tmpl")
+	if err != nil {
+		return cache, err
+	}
+	for _, page := range pages {
+		name := filepath.Base(page)
+		tmpl := template.Must(template.ParseFiles(page))
+		layouts, err := filepath.Glob("./templates/layouts/*.layout.tmpl")
+		if err != nil {
+			return cache, err
+		}
+		if len(layouts) > 0 {
+			tmpl.ParseGlob("./templates/layouts/*.layout.tmpl")
+		}
+		cache[name] = tmpl
+	}
+	return cache, nil
+}
+*/

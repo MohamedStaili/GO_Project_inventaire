@@ -145,21 +145,7 @@ func SupprimerUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Record deleted successfully"}`))
 }
-func ShowLoginForm(w http.ResponseWriter, r *http.Request) {
-	tmplFiles := []string{
-		filepath.Join("templates", "layout.html"),
-		filepath.Join("templates", "navbar.html"),
-		filepath.Join("templates", "login.html"),
-	}
 
-	tmpl, err := template.ParseFiles(tmplFiles...)
-	if err != nil {
-		http.Error(w, "Erreur lors du chargement des templates", http.StatusInternalServerError)
-		return
-	}
-
-	tmpl.ExecuteTemplate(w, "layout", nil)
-}
 func LoginPage(w http.ResponseWriter, r *http.Request) {
 	var LogInfo map[string]string
 	err := utils.ParseBody(r, &LogInfo)
