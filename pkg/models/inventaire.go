@@ -66,11 +66,10 @@ type User struct {
 	Role     string `json:"role" gorm:"default:user"`
 }
 type Session struct {
-	ID        uint      `gorm:"primary_key"`
-	UUID      string    `gorm:"type:varchar(255);unique_index"`
-	UserID    uint      `gorm:"not null"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP"`
-	ExpiresAt time.Time `gorm:"not null"`
+	UUID      string    `json:"type:varchar(255);unique_index"`
+	UserID    uint      `json:"not null"`
+	CreatedAt time.Time `json:"default:CURRENT_TIMESTAMP"`
+	ExpiresAt time.Time `json:"not null"`
 }
 
 // Nommer explicitement la table
@@ -274,7 +273,7 @@ func LoginPage(email, password string) error {
 }
 func (u *User) CreateSession() (Session, error) {
 	// Durée de validité de la session
-	expirationTime := time.Now().Add(48 * time.Hour * 30)
+	expirationTime := time.Now().Add(2 * time.Hour)
 
 	session := Session{
 		UUID:      uuid.New().String(),
@@ -291,10 +290,18 @@ func (u *User) CreateSession() (Session, error) {
 }
 func UserByEmail(email string) (User, error) {
 	var user User
-	if err := db.Where("eamil=?", email).First(&user).Error; err != nil {
+	if err := db.Where("email=?", email).First(&user).Error; err != nil {
 		return User{}, errors.New("user not found")
 	}
 	return user, nil
+}
+func GetSessionByUUID(uuid string) (Session, error) {
+	var session Session
+	err := db.Where("uuid = ?", uuid).First(&session).Error
+	return session, err
+}
+func DeleteExpiredSessions() error {
+	return db.Where("expires_at < ?", time.Now()).Delete(&Session{}).Error
 }
 
 /*func CreateTemplateCache() (map[string]*template.Template, error) {

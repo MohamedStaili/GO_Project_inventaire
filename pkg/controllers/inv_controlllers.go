@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -157,35 +158,65 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 	email := LogInfo["email"]
 	password := LogInfo["password"]
 
+	// Verify the user's credentials
 	err = models.LoginPage(email, password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	user, _ := models.UserByEmail(email)
-	session, err := user.CreateSession()
+	// Retrieve the user by email
+	user, err := models.UserByEmail(email)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if a session already exists and is valid
+	cookie, err := r.Cookie("_cookie")
+	var session models.Session
+	if err == nil {
+		session, err = models.GetSessionByUUID(cookie.Value)
+		if err == nil && session.ExpiresAt.After(time.Now()) {
+			// Session exists and is valid, update the cookie expiration time
+			cookie.Expires = session.ExpiresAt
+			http.SetCookie(w, cookie)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"message": "Login Successful"}`))
+			return
+		}
+	}
+
+	// Create a new session if no valid session exists
+	session, err = user.CreateSession()
 	if err != nil {
 		http.Error(w, "Could not create session", http.StatusInternalServerError)
 		return
 	}
 
+	// Set the session for the user
 	err = utils.SetSession(w, r, user)
 	if err != nil {
 		http.Error(w, "Could not set session", http.StatusInternalServerError)
 		return
 	}
-	// Définition du cookie HTTP avec le UUID de la session
-	cookie := http.Cookie{
+
+	// Set the session cookie
+	cookie = &http.Cookie{
 		Name:     "_cookie",
 		Value:    session.UUID,
 		HttpOnly: true,
 		Expires:  session.ExpiresAt,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 	}
-	http.SetCookie(w, &cookie)
+	http.SetCookie(w, cookie)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Login Successful"}`))
 }
+
+// LogOut handles the logout process and clears the session.
+
 func LogOut(w http.ResponseWriter, r *http.Request) {
 	if err := utils.ClearSession(w, r); err != nil {
 		fmt.Printf("error:%v", err)
@@ -205,7 +236,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 	var tmplFiles []string
 
 	if err != nil {
-		// Templates pour utilisateurs non authentifiés
+		// Redirection vers la page login
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
 		// Templates pour utilisateurs authentifiés

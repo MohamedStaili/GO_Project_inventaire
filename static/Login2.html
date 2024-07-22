@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.2.0/css/all.css'>
+    <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.2.0/css/fontawesome.css'>
+	<link rel="stylesheet" href="style.css">
+    <style>
+        /* Your CSS styles */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="screen">
+            <div class="screen__content">
+                <form class="login" id="loginform">
+                    <div class="login__field">
+                        <i class="login__icon fas fa-user"></i>
+                        <input type="text" id="email" class="login__input" placeholder="Email" required>
+                    </div>
+                    <div class="login__field">
+                        <i class="login__icon fas fa-lock"></i>
+                        <input type="password" id="password" class="login__input" placeholder="Password" required>
+						<i class="toggle-password fas fa-eye"></i>
+                    </div>
+					<div>
+						<p id="message" style="color: red;"></p>
+					</div>
+                    <button class="button login__submit" type="submit">
+						
+                        <span class="button__text">Log In Now</span>
+                        <i class="button__icon fas fa-chevron-right"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="screen__background">
+                <span class="screen__background__shape screen__background__shape4"></span>
+                <span class="screen__background__shape screen__background__shape3"></span>
+                <span class="screen__background__shape screen__background__shape2"></span>
+                <span class="screen__background__shape screen__background__shape1"></span>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#loginform').on('submit', function(e) {
+                e.preventDefault();
+
+                var formData = {
+                    email: $('#email').val(),
+                    password: $('#password').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:8080/login',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        $('#message').text('Login Successful');
+                        // Optionally redirect or update the page
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#message').text('Login Failed: ' + jqXHR.responseText);
+                    }
+                });
+            });
+			$('.toggle-password').on('click', function() {
+                var passwordField = $('#password');
+                var passwordFieldType = passwordField.attr('type');
+                var newPasswordFieldType = passwordFieldType === 'password' ? 'text' : 'password';
+                passwordField.attr('type', newPasswordFieldType);
+                $(this).toggleClass('fa-eye fa-eye-slash');
+            });
+        });
+    </script>
+</body>
+</html>

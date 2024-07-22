@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"net/http"
 
 	"MohamedStaili/GO_Project_inventaire/pkg/models"
@@ -22,6 +23,7 @@ func SetSession(w http.ResponseWriter, r *http.Request, user models.User) error 
 
 	session.Values["authenticated"] = true
 	session.Values["user_id"] = user.ID
+	fmt.Printf("Setting session for user ID: %d\n", user.ID)
 	session.Save(r, w)
 
 	return nil
