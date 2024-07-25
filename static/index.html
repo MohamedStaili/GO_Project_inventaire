@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<meta name="description" content="POS - Bootstrap Admin Template">
+<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, invoice, html5, responsive, Projects">
+<meta name="author" content="Dreamguys - Bootstrap Admin Template">
+<meta name="robots" content="noindex, nofollow">
+<title>Devoteam's Inventory</title>
+
+<link rel="icon" type="image/png" sizes="128x128"  href="/static/img/Devoteam (1).png">
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="assets/css/animate.css">
+<link rel="stylesheet" href="assets/plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="assets/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
+<link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.jqueryui.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.jqueryui.min.js"></script>
+</head>
+<body>
+<div id="global-loader">
+<div class="whirly-loader"> </div>
+</div>
+
+<div class="main-wrapper">
+
+<div class="header">
+<!-- Header content remains unchanged -->
+<div class="header-left active">
+    <a href="index.html" class="logo">
+    <img src="img/devoteam_logo.svg" alt="">
+    </a>
+    <a href="index.html" class="logo-small">
+    <img src="img/devoteam_logo.svg" alt="">
+    </a>
+    <a id="toggle_btn" href="javascript:void(0);">
+    </a>
+    </div>
+    
+    <a id="mobile_btn" class="mobile_btn" href="#sidebar">
+    <span class="bar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+    </span>
+    </a>
+    
+    <ul class="nav user-menu">
+    
+    <li class="nav-item">
+    <div class="top-nav-search">
+    <a href="javascript:void(0);" class="responsive-search">
+    <i class="fa fa-search"></i>
+    </a>
+    <form action="#">
+    <div class="searchinputs">
+    <input type="text" placeholder="Search Here ...">
+    <div class="search-addon">
+    <span><img src="assets/img/icons/closes.svg" alt="img"></span>
+    </div>
+    </div>
+    <a class="btn" id="searchdiv"><img src="assets/img/icons/search.svg" alt="img"></a>
+    </form>
+    </div>
+    </li>
+    
+    
+    
+    
+    
+    
+    <li class="nav-item dropdown has-arrow main-drop">
+    <a href="javascript:void(0);" class="dropdown-toggle nav-link userset" data-bs-toggle="dropdown">
+    <span class="user-img"><img src="assets/img/profiles/avator1.jpg" alt="">
+    <span class="status online"></span></span>
+    </a>
+    <div class="dropdown-menu menu-drop-user">
+    <div class="profilename">
+    <div class="profileset">
+    <span class="user-img"><img src="assets/img/profiles/avator1.jpg" alt="">
+    <span class="status online"></span></span>
+    <div class="profilesets">
+    <h6>John Doe</h6>
+    <h5>Admin</h5>
+    </div>
+    </div>
+    <hr class="m-0">
+    <a class="dropdown-item" href="profile.html"> <i class="me-2" data-feather="user"></i> My Profile</a>
+    <a class="dropdown-item" href="generalsettings.html"><i class="me-2" data-feather="settings"></i>Settings</a>
+    <hr class="m-0">
+    <a class="dropdown-item logout pb-0" href="signin.html"><img src="assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
+    </div>
+    </div>
+    </li>
+    </ul>
+    
+    
+    <div class="dropdown mobile-user-menu">
+    <a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+    <div class="dropdown-menu dropdown-menu-right">
+    <a class="dropdown-item" href="profile.html">My Profile</a>
+    <a class="dropdown-item" href="generalsettings.html">Settings</a>
+    <a class="dropdown-item" href="signin.html">Logout</a>
+    </div>
+    </div>
+    
+</div>
+
+<div class="sidebar" id="sidebar">
+<!-- Sidebar content remains unchanged -->
+<div class="sidebar-inner slimscroll">
+    <div id="sidebar-menu" class="sidebar-menu">
+    <ul>
+    
+    <li class="submenu">
+    <a href="javascript:void(0);"><img src="assets/img/icons/product.svg" alt="img"><span> Inventory</span> <span class="menu-arrow"></span></a>
+    <ul>
+    <li><a href="index.html" class="active">Inventory List</a></li>
+    <li><a href="addproduct.html">Add Inventory</a></li>
+    <li><a href="categorylist.html">Material List</a></li>
+    <li><a href="addcategory.html">Add Material</a></li>
+    <li><a href="brandlist.html">Employees List</a></li>
+    </ul>
+    </li>
+    </li>
+    <li class="submenu">
+    <a href="javascript:void(0);"><img src="assets/img/icons/purchase1.svg" alt="img"><span> Purchase</span> <span class="menu-arrow"></span></a>
+    <ul>
+    <li><a href="purchaselist.html">Purchase List</a></li>
+    <li><a href="addpurchase.html">Add Purchase</a></li>
+    <li><a href="importpurchase.html">Import Purchase</a></li>
+    </ul>
+    </li>
+    
+    <li class="submenu">
+    <a href="javascript:void(0);"><i data-feather="alert-octagon"></i> <span> Error Pages </span> <span class="menu-arrow"></span></a>
+    <ul>
+    <li><a href="error-404.html">404 Error </a></li>
+    <li><a href="error-500.html">500 Error </a></li>
+    </ul>
+    </li>
+    <li class="submenu">
+    <a href="javascript:void(0);"><img src="assets/img/icons/time.svg" alt="img"><span> Report</span> <span class="menu-arrow"></span></a>
+    <ul>
+    <li><a href="purchaseorderreport.html">Purchase order report</a></li>
+    <li><a href="inventoryreport.html">Inventory Report</a></li>
+    <li><a href="salesreport.html">Sales Report</a></li>
+    <li><a href="invoicereport.html">Invoice Report</a></li>
+    <li><a href="purchasereport.html">Purchase Report</a></li>
+    <li><a href="supplierreport.html">Supplier Report</a></li>
+    <li><a href="customerreport.html">Customer Report</a></li>
+    </ul>
+    </li>
+    <li class="submenu admin-only" style="display: none;">
+    <a href="javascript:void(0);"><img src="assets/img/icons/users1.svg" alt="img"><span> Users</span> <span class="menu-arrow"></span></a>
+    <ul >
+    <li style="display: none;"><a href="newuser.html">New User </a></li>
+    <li style="display: none;"><a href="userlists.html">Users List</a></li>
+    </ul>
+    </li>
+    </ul>
+    </div>
+    </div>
+</div>
+
+<div class="page-wrapper">
+<div class="content">
+<div class="page-header">
+<div class="page-title">
+<h4>Inventory List</h4>
+<h6>Manage your Inventory</h6>
+</div>
+<div class="page-btn">
+<a href="addproduct.html" class="btn btn-added"><img src="assets/img/icons/plus.svg" alt="img" class="me-1">Add New Inventory</a>
+</div>
+</div>
+
+<div class="card">
+<div class="card-body">
+<div class="table-top">
+<div class="search-set">
+
+<div class="search-input">
+<a class="btn btn-searchset"><img src="assets/img/icons/search-white.svg" alt="img"></a>
+</div>
+</div>
+<div class="wordset">
+<ul>
+<li>
+<a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="assets/img/icons/pdf.svg" alt="img"></a>
+</li>
+<li>
+<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="assets/img/icons/excel.svg" alt="img"></a>
+</li>
+<li>
+<a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="assets/img/icons/printer.svg" alt="img"></a>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div class="table-responsive">
+    <div class="container mt-5">
+        <table id="data-table" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Checkbox</th>
+                    <th>Inventory Number</th>
+                    <th>Materiel Category</th>
+                    <th>Marque/Model</th>
+                    <th>Serie Number</th>
+                    <th>Purchase Ref</th>
+                    <th>Facture Number</th>
+                    <th>Purchase Price H.T</th>
+                    <th>Date of entry</th>
+                    <th>Assignment Date</th>
+                    <th>Assignment</th>
+                    <th>Observations</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be appended here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="assets/js/jquery-3.6.0.min.js"></script>
+<script src="assets/js/feather.min.js"></script>
+<script src="assets/js/jquery.slimscroll.min.js"></script>
+<script src="assets/js/jquery.dataTables.min.js"></script>
+<script src="assets/js/dataTables.bootstrap4.min.js"></script>
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+<script src="assets/plugins/select2/js/select2.min.js"></script>
+<script src="assets/plugins/sweetalert/sweetalert2.all.min.js"></script>
+<script src="assets/plugins/sweetalert/sweetalerts.min.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+    $(document).ready(function() {
+        const table = $('#data-table').DataTable();
+
+        const apiUrl = 'http://localhost:8080/GEtInventory'; // Replace with your API URL
+
+        $.ajax({
+            url: apiUrl,
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                const $tbody = $('#data-table tbody');
+                $tbody.empty(); // Clear the table body before adding new data
+
+                data.forEach(item => {
+                    const $row = $('<tr></tr>')
+                        .append('<td><label class="checkboxs"><input type="checkbox"><span class="checkmarks"></span></label></td>')
+                        .append(`<td>${item.n_inv}</td>`)  // Inventory Number
+                        .append(`<td>${item.materiel.mat_label}</td>`)  // Materiel Category
+                        .append(`<td>${item.materiel.marque_model}</td>`)  // Marque/Model
+                        .append(`<td>${item.numero_ser}</td>`)  // Serie Number
+                        .append(`<td>${item.achat.ref_achat}</td>`)  // Purchase Ref
+                        .append(`<td>${item.achat.num_fact}</td>`)  // Facture Number
+                        .append(`<td>${item.achat.pri_achat_ht}</td>`)  // Purchase Price H.T
+                        .append(`<td>${item.achat.date_entree}</td>`)  // Date of Entry
+                        .append(`<td>${item.date_affectation}</td>`)  // Assignment Date
+                        .append(`<td>${item.employe.nom} ${item.employe.prenom}</td>`)  // Assignment (assumed to be employee's full name)
+                        .append(`<td>${item.observations || ''}</td>`)  // Observations
+                        .append('<td><button class="btn btn-primary" style="margin-left: 7px;">Modify</button> <button class="btn btn-primary">Delete</button></td>');  // Actions (example button)
+                    table.row.add($row).draw(false);
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('There was a problem with the data retrieval:', textStatus, errorThrown);
+            }
+        });
+        // Function to get cookie by name
+        function getCookie(name) {
+            let cookieArr = document.cookie.split(";");
+            for (let i = 0; i < cookieArr.length; i++) {
+                let cookiePair = cookieArr[i].split("=");
+                if (name == cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        // Check user role and display admin-only elements if role is 'admin'
+        const userRole = getCookie('role');
+    console.log('User Role from cookie:', userRole);  // Debugging line
+        if (userRole === 'admin') {
+            $('.admin-only').show();
+        }
+    });
+</script>
+</body>
+</html>

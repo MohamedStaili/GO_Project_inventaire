@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="icon" type="image/png"  href="/static/img/Devoteam.png">
+   
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.2.0/css/all.css'>
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.2.0/css/fontawesome.css'>
 	<link rel="stylesheet" href="css/style.css">
@@ -40,9 +43,6 @@
             </div>
             
             <div class="screen__background">
-                <span class="screen__background__shape screen__background__shape4"></span>
-                <span class="screen__background__shape screen__background__shape3"></span>
-                <span class="screen__background__shape screen__background__shape2"></span>
                 <span class="screen__background__shape screen__background__shape1"></span>
             </div>
         </div>
@@ -64,8 +64,8 @@
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(response) {
-                        $('#message').text('Login Successful');
-                        // Optionally redirect or update the page
+                        //$('#message').text('Login Successful');
+                        window.location.href="http://localhost:8080/static/index.html"
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $('#message').text('Login Failed: ' + jqXHR.responseText);

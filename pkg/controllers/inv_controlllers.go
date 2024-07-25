@@ -6,9 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"path/filepath"
 	"strconv"
-	"text/template"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -225,7 +223,7 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "Logout Successful"}`))
 }
 
-func HomePage(w http.ResponseWriter, r *http.Request) {
+func GetAllInventaire(w http.ResponseWriter, r *http.Request) {
 	inventaires, err := models.GetAllInventaire()
 	if err != nil {
 		http.Error(w, "Erreur lors de la récupération des inventaires", http.StatusInternalServerError)
@@ -233,28 +231,19 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = utils.GetSession(r) // Vérifiez si une session est active
-	var tmplFiles []string
 
 	if err != nil {
 		// Redirection vers la page login
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
-		// Templates pour utilisateurs authentifiés
-		tmplFiles = []string{
-			filepath.Join("templates", "layout.html"),
-			filepath.Join("templates", "navbar.html"),
-			filepath.Join("templates", "index.html"),
+		res, err := json.Marshal(inventaires)
+		if err != nil {
+			http.Error(w, "Erreur lors de la conversion en JSON", http.StatusInternalServerError)
+			return
 		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
 	}
 
-	tmpl, err := template.ParseFiles(tmplFiles...)
-	if err != nil {
-		http.Error(w, "Erreur lors du chargement des templates", http.StatusInternalServerError)
-		return
-	}
-
-	err = tmpl.ExecuteTemplate(w, "layout", inventaires)
-	if err != nil {
-		http.Error(w, "Erreur lors de l'exécution du template", http.StatusInternalServerError)
-	}
 }
+func UserInfo()

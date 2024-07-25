@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"MohamedStaili/GO_Project_inventaire/pkg/models"
 
@@ -23,7 +24,15 @@ func SetSession(w http.ResponseWriter, r *http.Request, user models.User) error 
 
 	session.Values["authenticated"] = true
 	session.Values["user_id"] = user.ID
+	session.Values["role"] = user.Role
 	fmt.Printf("Setting session for user ID: %d\n", user.ID)
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   int(2 * time.Hour / time.Second),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	}
 	session.Save(r, w)
 
 	return nil
