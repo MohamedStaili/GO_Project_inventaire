@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-// AuthRequired vérifie si une session est active
 func AuthRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Exclure certaines pages de la vérification d'authentification
-		nonAuthPaths := []string{"/static/login.html", "/static/css", "/static/img", "/static/favicon"} // Ajoutez d'autres pages publiques si nécessaire
+		// Exclude certain pages from authentication check
+		nonAuthPaths := []string{"/static/login.html", "/static/css", "/static/img", "/static/favicon"} // Add other public pages if needed
 		for _, path := range nonAuthPaths {
 			if strings.HasPrefix(r.URL.Path, path) {
 				next.ServeHTTP(w, r)
 				return
 			}
+
 		}
 
 		session, err := utils.GetSession(r)

@@ -110,7 +110,7 @@ func AjouterUser(w http.ResponseWriter, r *http.Request) {
 	var NewUser models.User
 	utils.ParseBody(r, &NewUser)
 	//verifier l'existence de{username,password,email}
-	if NewUser.Username == "" || NewUser.Email == "" || NewUser.Password == "" {
+	if NewUser.Username == "" || NewUser.Email == "" || NewUser.Password == "" || NewUser.Role == "" {
 		http.Error(w, "plaise provide all fields", http.StatusBadRequest)
 		return
 	}
@@ -193,7 +193,7 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the session for the user
-	err = utils.SetSession(w, r, user)
+	err = utils.SetSession(w, r, user, session.UUID)
 	if err != nil {
 		http.Error(w, "Could not set session", http.StatusInternalServerError)
 		return
@@ -214,13 +214,48 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // LogOut handles the logout process and clears the session.
-
 func LogOut(w http.ResponseWriter, r *http.Request) {
-	if err := utils.ClearSession(w, r); err != nil {
-		fmt.Printf("error:%v", err)
+
+	session, err := utils.GetSession(r)
+	if err != nil {
+		http.Error(w, "Failed to get session", http.StatusInternalServerError)
+		fmt.Printf("Error getting session: %v\n", err)
+		return
 	}
+
+	uuid, ok := session.Values["uuid"].(string)
+	if !ok {
+		http.Error(w, "Invalid session UUID", http.StatusInternalServerError)
+		fmt.Printf("Invalid session UUID: %v\n", session.Values["uuid"])
+		return
+	}
+
+	if err := models.DeleteSession(uuid); err != nil {
+		http.Error(w, "Failed to delete session", http.StatusInternalServerError)
+		fmt.Printf("Error deleting session from database: %v\n", err)
+		return
+	}
+
+	if err := utils.ClearSession(w, r); err != nil {
+		http.Error(w, "Failed to clear session", http.StatusInternalServerError)
+		fmt.Printf("Error clearing session: %v\n", err)
+		return
+	}
+
+	// Delete the session cookie
+	cookie := &http.Cookie{
+		Name:     "_cookie",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	}
+	http.SetCookie(w, cookie)
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Logout Successful"}`))
+	fmt.Println("Logout successful")
 }
 
 func GetAllInventaire(w http.ResponseWriter, r *http.Request) {
@@ -246,4 +281,36 @@ func GetAllInventaire(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-func UserInfo()
+
+// getUserInfo handles the request and returns user information in JSON format
+func GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	session, err := utils.GetSession(r)
+	if err != nil {
+		http.Error(w, "Session not found", http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve user role from session
+	role, ok := session.Values["role"].(string)
+	if !ok || role == "" {
+		http.Error(w, "Role not found in session", http.StatusUnauthorized)
+		return
+	}
+
+	// Retrieve username from session (optional)
+	username, ok := session.Values["name"].(string)
+	if !ok || username == "" {
+		username = "Unknown"
+	}
+
+	user := models.User{
+		Username: username,
+		Role:     role,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

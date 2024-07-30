@@ -63,7 +63,7 @@ type User struct {
 	Username string `json:"username" validate:"required,min=3,max=32"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=6"`
-	Role     string `json:"role" gorm:"default:user"`
+	Role     string `json:"role"`
 }
 type Session struct {
 	UUID      string    `json:"type:varchar(255);unique_index"`
@@ -217,9 +217,9 @@ func (U *User) BeforeCreate(scope *gorm.Scope) (err error) {
 	}
 
 	// Ensure the role is not "admin"
-	if existingUser.Role == "admin" {
+	/*if existingUser.Role == "admin" {
 		return errors.New("invalid role")
-	}
+	}*/
 	return nil
 }
 
@@ -302,6 +302,9 @@ func GetSessionByUUID(uuid string) (Session, error) {
 }
 func DeleteExpiredSessions() error {
 	return db.Where("expires_at < ?", time.Now()).Delete(&Session{}).Error
+}
+func DeleteSession(uuid string) error {
+	return db.Where("uuid=?", uuid).Delete(&Session{}).Error
 }
 
 /*func CreateTemplateCache() (map[string]*template.Template, error) {

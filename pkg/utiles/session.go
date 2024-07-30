@@ -16,7 +16,7 @@ func GetSession(r *http.Request) (*sessions.Session, error) {
 	return store.Get(r, "session-name")
 }
 
-func SetSession(w http.ResponseWriter, r *http.Request, user models.User) error {
+func SetSession(w http.ResponseWriter, r *http.Request, user models.User, UUID string) error {
 	session, err := store.Get(r, "session-name")
 	if err != nil {
 		return err
@@ -25,6 +25,10 @@ func SetSession(w http.ResponseWriter, r *http.Request, user models.User) error 
 	session.Values["authenticated"] = true
 	session.Values["user_id"] = user.ID
 	session.Values["role"] = user.Role
+	session.Values["username"] = user.Username
+	session.Values["email"] = user.Email
+	session.Values["name"] = user.Username
+	session.Values["uuid"] = UUID
 	fmt.Printf("Setting session for user ID: %d\n", user.ID)
 	session.Options = &sessions.Options{
 		Path:     "/",
@@ -44,8 +48,11 @@ func ClearSession(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	session.Values["authenticated"] = false
-	session.Save(r, w)
+	session.Options.MaxAge = -1
+	err = session.Save(r, w)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -34,6 +34,8 @@ var RegisterInventaireRoutes = func(router *mux.Router) {
 	admin := router.PathPrefix("/admin").Subrouter()
 	admin.Use(middlewares.AdminOnlyMiddleware)
 	admin.HandleFunc("/adduser", controllers.AjouterUser).Methods("POST")
+	//router.HandleFunc("/adduser", controllers.AjouterUser).Methods("POST")
 	//admin.HandleFunc("/userlist", controllers.UserList).Methods("GET")
-	admin.HandleFunc("/deleteuser", controllers.SupprimerUser).Methods("DELETE")
+	admin.HandleFunc("/deleteuser{id}", controllers.SupprimerUser).Methods("DELETE")
+	router.HandleFunc("/getuserinfo", controllers.GetUserInfo).Methods("POST")
 }
