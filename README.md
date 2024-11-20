@@ -129,4 +129,4 @@ Ce projet est sous la licence MIT - voir le fichier [LICENSE](LICENSE) pour plus
 
 ## Contact
 
-Si vous avez des questions ou des suggestions, n’hésitez pas à me contacter à l’adresse suivante : [votre.email@example.com].
+Si vous avez des questions ou des suggestions, n’hésitez pas à me contacter à l’adresse suivante : [mohamedstaili962@gmail.com].
