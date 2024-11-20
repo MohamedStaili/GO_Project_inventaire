@@ -27,8 +27,8 @@ Avant de commencer, assurez-vous d’avoir les éléments suivants installés :
 1. Clonez le dépôt du backend :
 
 ```bash
-git clone <url_du_dépôt_backend>
-cd <dossier_backend>
+git clone (https://github.com/MohamedStaili/GO_Project_inventaire)
+cd /path/GO_Project_inventaire
 ```
 
 2. Installez les dépendances Go :
