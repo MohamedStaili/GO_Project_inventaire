@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -20,56 +20,56 @@ var validate *validator.Validate
 // Structure Inventaire
 type Inventaire struct {
 	gorm.Model
-	DateAffectation string   `json:"date_affectation"`
-	NInv            string   `json:"n_inv"`
-	IdMat           uint     `json:"id_mat"`
-	Materiel        Materiel `gorm:"foreignkey:IdMat" json:"materiel"`
-	NumeroSer       string   `json:"numero_ser"`
-	IdAchat         uint     `json:"id_achat"`
-	Achat           Achat    `gorm:"foreignkey:IdAchat" json:"achat"`
-	IdEmploye       uint     `json:"id_employe"`
-	Employe         Employe  `gorm:"foreignkey:IdEmploye" json:"employe"`
+	DateAffectation string `json:"Assignement Date"`
+	NInv            string `json:"Inventory Number"`
+	IdMat           uint   `json:"Materiel ID"`
+	//Materiel        Materiel `gorm:"foreignkey:IdMat" json:"materiel"`
+	NumeroSer string `json:"Serie Number"`
+	IdAchat   uint   `json:"Purchase ID"`
+	//Achat           Achat    `gorm:"foreignkey:IdAchat" json:"achat"`
+	IdEmploye uint `json:"Employee ID"`
+	//Employe         Employe  `gorm:"foreignkey:IdEmploye" json:"employe"`
+}
+type CustomClaims struct {
+	ID   uint   `json:"id"`
+	Role string `json:"role"`
+	jwt.StandardClaims
 }
 
 // Structure Achat
 type Achat struct {
 	gorm.Model
-	RefAchat    string  `json:"ref_achat"`
-	NumFact     string  `json:"num_fact"`
-	PriAchatHT  float64 `json:"pri_achat_ht"`
-	Fournisseur string  `json:"fournisseur"`
-	DateEntree  string  `json:"date_entree"`
-	IdMat       uint    `json:"id_mat"`
+	RefAchat    string  `json:"Purchase Ref"`
+	NumFact     string  `json:"Facteur Number"`
+	PriAchatHT  float64 `json:"Purchase Price H.T"`
+	Fournisseur string  `json:"Fournisseur"`
+	DateEntree  string  `json:"Entre Date"`
+	IdMat       uint    `json:"Materiel ID"`
+	//Materiel    Materiel `gorm:"foreignkey:IdMat" json:"materiel"`
 }
 
 // Structure Employe
 type Employe struct {
 	gorm.Model
-	Nom    string `json:"nom"`
-	Prenom string `json:"prenom"`
+	Nom    string `json:"Last Name"`
+	Prenom string `json:"Firs Name"`
 }
 
 // Structure Materiel
 type Materiel struct {
 	gorm.Model
-	MatLabel    string `json:"mat_label"`
-	MarqueModel string `json:"marque_model"`
+	MatLabel    string `json:"Materiel Lbale"`
+	MarqueModel string `json:"Marque/Model"`
 }
 
 // Structure User
 type User struct {
 	gorm.Model
 	UUID     string `json:"uuid"`
-	Username string `json:"username" validate:"required,min=3,max=32"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
-	Role     string `json:"role"`
-}
-type Session struct {
-	UUID      string    `json:"type:varchar(255);unique_index"`
-	UserID    uint      `json:"not null"`
-	CreatedAt time.Time `json:"default:CURRENT_TIMESTAMP"`
-	ExpiresAt time.Time `json:"not null"`
+	Username string `json:"Username"`
+	Email    string `json:"Email" `
+	Password string `json:"Password" ` //pour ne pas returner le password
+	Role     string `json:"Role"`
 }
 
 // Nommer explicitement la table
@@ -91,23 +91,21 @@ func (Materiel) TableName() string {
 func (User) TableName() string {
 	return "user"
 }
-func (Session) TableName() string {
-	return "sessions"
-}
 
 // Inside your init() function or database initialization code
 func init() {
 	config.Connect()
 	db = config.GetDb()
 	db.LogMode(true)
-	db.AutoMigrate(&Materiel{}, &Achat{}, &Employe{}, &Inventaire{}, &User{}, &Session{})
+	db.AutoMigrate(&Materiel{}, &Achat{}, &Employe{}, &Inventaire{}, &User{})
 
 	// Auto-migration avec les relations et les clés étrangères
 	db.Table("inventaires").AutoMigrate(&Inventaire{}).
 		AddForeignKey("id_mat", "materiels(id)", "CASCADE", "CASCADE").
 		AddForeignKey("id_achat", "achats(id)", "CASCADE", "CASCADE").
 		AddForeignKey("id_employe", "employes(id)", "CASCADE", "CASCADE")
-	db.Table("achats").AutoMigrate(&Achat{}).AddForeignKey("id_mat", "materiels(id)", "CASCADE", "CASCADE")
+	db.Table("achats").AutoMigrate(&Achat{}).
+		AddForeignKey("id_mat", "materiels(id)", "CASCADE", "CASCADE")
 	validate = validator.New()
 
 }
@@ -131,14 +129,70 @@ func (b *Inventaire) AjouterInventaire() (*Inventaire, error) {
 	db.Create(&b)
 	return b, nil
 }
+func (b *Achat) AjouterAchat() (*Achat, error) {
+	// Vérifiez que les clés étrangères existent avant l'insertion
+	if err := db.Where("id = ?", b.IdMat).First(&Materiel{}).Error; err != nil {
+		return nil, fmt.Errorf("Materiel with id %d does not exist", b.IdMat)
+	}
+
+	// Ajouter l'inventaire si toutes les clés étrangères sont valides
+	db.NewRecord(&b)
+	db.Create(&b)
+	return b, nil
+}
+func (b *Employe) AjouterEmployee() (*Employe, error) {
+
+	db.NewRecord(&b)
+	db.Create(&b)
+	return b, nil
+}
+func (b *Materiel) AjouterMateriel() (*Materiel, error) {
+
+	db.NewRecord(&b)
+	db.Create(&b)
+	return b, nil
+}
 
 func GetAllInventaire() ([]Inventaire, error) {
 	var inventaires []Inventaire
-	err := db.Preload("Achat").Preload("Employe").Preload("Materiel").Find(&inventaires).Error
+	err := db.Find(&inventaires).Error
 	if err != nil {
 		return nil, err
 	}
 	return inventaires, nil
+}
+func GetAllMateriel() ([]Materiel, error) {
+	var materiel []Materiel
+	err := db.Find(&materiel).Error
+	if err != nil {
+		return nil, err
+	}
+	return materiel, nil
+}
+func GetAllEmployee() ([]Employe, error) {
+	var employe []Employe
+	err := db.Find(&employe).Error
+	if err != nil {
+		return nil, err
+	}
+	return employe, nil
+}
+func GetAllPurchase() ([]Achat, error) {
+	var achat []Achat
+	err := db.Find(&achat).Error
+	if err != nil {
+		return nil, err
+	}
+	return achat, nil
+}
+
+func GetListUser() ([]User, error) {
+	var user []User
+	err := db.Find(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func SearchPage(Id int64) (Inventaire, *gorm.DB) {
@@ -170,14 +224,168 @@ func SupprimerInventaire(Id int64) error {
 	fmt.Println("Record deleted successfully")
 	return nil
 }
+func SupprimerMateriel(Id int64) error {
+	var delMat Materiel
+	// Log de débogage pour vérifier l'ID
+	fmt.Printf("Attempting to delete record with ID: %d\n", Id)
 
-func (b *Inventaire) ModifierInventaire() *Inventaire {
-	if db.NewRecord(&b) {
-		fmt.Println("Erreur: Impossible de mettre à jour, l'inventaire n'existe pas encore.")
-		return b
+	// Trouvez l'inventaire à supprimer
+	if err := db.Where("id = ?", Id).First(&delMat).Error; err != nil {
+		fmt.Printf("Error finding record: %v\n", err)
+		return err
 	}
-	db.Save(&b)
-	return b
+
+	// Log de débogage pour vérifier l'enregistrement trouvé
+	fmt.Printf("Record found: %+v\n", delMat)
+
+	// Supprimez l'inventaire
+	if err := db.Delete(&delMat).Error; err != nil {
+		fmt.Printf("Error deleting record: %v\n", err)
+		return err
+	}
+
+	fmt.Println("Record deleted successfully")
+	return nil
+}
+func SupprimerEmploye(Id int64) error {
+	var delEmp Employe
+	// Log de débogage pour vérifier l'ID
+	fmt.Printf("Attempting to delete record with ID: %d\n", Id)
+
+	// Trouvez l'Employe à supprimer
+	if err := db.Where("id = ?", Id).First(&delEmp).Error; err != nil {
+		fmt.Printf("Error finding record: %v\n", err)
+		return err
+	}
+
+	// Log de débogage pour vérifier l'enregistrement trouvé
+	fmt.Printf("Record found: %+v\n", delEmp)
+
+	// Supprimez l'inventaire
+	if err := db.Delete(&delEmp).Error; err != nil {
+		fmt.Printf("Error deleting record: %v\n", err)
+		return err
+	}
+
+	fmt.Println("Record deleted successfully")
+	return nil
+}
+func SupprimerAchat(Id int64) error {
+	var delAchat Achat
+	// Log de débogage pour vérifier l'ID
+	fmt.Printf("Attempting to delete record with ID: %d\n", Id)
+
+	// Trouvez l'Achat à supprimer
+	if err := db.Where("id = ?", Id).First(&delAchat).Error; err != nil {
+		fmt.Printf("Error finding record: %v\n", err)
+		return err
+	}
+
+	// Log de débogage pour vérifier l'enregistrement trouvé
+	fmt.Printf("Record found: %+v\n", delAchat)
+
+	// Supprimez l'Achat
+	if err := db.Delete(&delAchat).Error; err != nil {
+		fmt.Printf("Error deleting record: %v\n", err)
+		return err
+	}
+
+	fmt.Println("Record deleted successfully")
+	return nil
+}
+
+func (b *Inventaire) ModifierInventaire() (*Inventaire, error) {
+	var existingMateriel Inventaire
+	// Recherchez le matériel par son ID
+	if err := db.Where("id = ?", b.ID).First(&existingMateriel).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			fmt.Println("Erreur: INVENTAIRE n'existe pas.")
+			return nil, err
+		}
+		return nil, err
+	}
+
+	// Si le matériel existe, effectuez la mise à jour
+	if err := db.Save(b).Error; err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func (b *Materiel) ModifierMateriel() (*Materiel, error) {
+	var existingMateriel Materiel
+	// Recherchez le matériel par son ID
+	if err := db.Where("id = ?", b.ID).First(&existingMateriel).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			fmt.Println("Erreur: Materiel n'existe pas.")
+			return nil, err
+		}
+		return nil, err
+	}
+
+	// Si le matériel existe, effectuez la mise à jour
+	if err := db.Save(b).Error; err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+func (b *Employe) ModifierEmploye() (*Employe, error) {
+	var existingMateriel Employe
+	// Recherchez le matériel par son ID
+	if err := db.Where("id = ?", b.ID).First(&existingMateriel).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			fmt.Println("Erreur: Employe n'existe pas.")
+			return nil, err
+		}
+		return nil, err
+	}
+
+	// Si le matériel existe, effectuez la mise à jour
+	if err := db.Save(b).Error; err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+func (b *Achat) ModifierAchat() (*Achat, error) {
+	var existingMateriel Achat
+	// Recherchez le matériel par son ID
+	if err := db.Where("id = ?", b.ID).First(&existingMateriel).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			fmt.Println("Erreur: Employe n'existe pas.")
+			return nil, err
+		}
+		return nil, err
+	}
+
+	// Si le matériel existe, effectuez la mise à jour
+	if err := db.Save(b).Error; err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func (b *User) ModifierProfile() (*User, error) {
+	hashPassword(b.Password)
+	var existingUser User
+	// Recherchez le matériel par son ID
+	if err := db.Where("id = ?", b.ID).First(&existingUser).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			fmt.Println("Erreur: User n'existe pas.")
+			return nil, err
+		}
+		return nil, err
+	}
+
+	// Si le matériel existe, effectuez la mise à jour
+	if err := db.Save(b).Error; err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }
 
 // Create a user
@@ -258,53 +466,27 @@ func checkPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func LoginPage(email, password string) error {
+func LoginPage(email, password string) (error, User) {
 	var user User
+
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		return errors.New("email does not exist")
+		return errors.New("email does not exist"), user
 	}
 
 	if !checkPasswordHash(password, user.Password) {
-		return errors.New("incorrect password")
+		return errors.New("incorrect password"), user
 	}
 
 	fmt.Println("Login Successful")
-	return nil
+	return nil, user
 }
-func (u *User) CreateSession() (Session, error) {
-	// Durée de validité de la session
-	expirationTime := time.Now().Add(2 * time.Hour)
 
-	session := Session{
-		UUID:      uuid.New().String(),
-		UserID:    u.ID,
-		CreatedAt: time.Now(),
-		ExpiresAt: expirationTime,
-	}
-
-	if err := db.Create(&session).Error; err != nil {
-		return Session{}, err
-	}
-
-	return session, nil
-}
 func UserByEmail(email string) (User, error) {
 	var user User
 	if err := db.Where("email=?", email).First(&user).Error; err != nil {
 		return User{}, errors.New("user not found")
 	}
 	return user, nil
-}
-func GetSessionByUUID(uuid string) (Session, error) {
-	var session Session
-	err := db.Where("uuid = ?", uuid).First(&session).Error
-	return session, err
-}
-func DeleteExpiredSessions() error {
-	return db.Where("expires_at < ?", time.Now()).Delete(&Session{}).Error
-}
-func DeleteSession(uuid string) error {
-	return db.Where("uuid=?", uuid).Delete(&Session{}).Error
 }
 
 /*func CreateTemplateCache() (map[string]*template.Template, error) {
